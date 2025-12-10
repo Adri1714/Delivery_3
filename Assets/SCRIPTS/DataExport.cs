@@ -13,6 +13,7 @@ using System.Collections.Generic;
 
 public class DataExport : MonoBehaviour
 {
+    public static DataExport instance { get; private set; }
     [Header("PHP URL")]
     [SerializeField] private string phpUrl = "https://citmalumnes.upc.es/~adriarj/footer.php";
     // Ejemplo de datos a enviar
@@ -24,23 +25,41 @@ public class DataExport : MonoBehaviour
         public int puntuacion;
         public float tiempo;
     }
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     // Llama a esto para enviar datos
-    public void EnviarDatos(MessageType type, Damageable.DamageMessage data)
+    public void EnviarDatos(string type, Damageable.DamageMessage data)
     {
-        var fields = new Dictionary<string, string>();
+        var fields = new Dictionary<string, object>();
         switch (type)
         {
-            case MessageType.DAMAGED:
-                fields = new Dictionary<string, string>
+            case "DamageReceived":
+                fields = new Dictionary<string, object>
                 {
-                    { "Amount", data.amount.ToString()},
-                    { "Position", data.damageSource.ToString() }
+                    { "damageAmount", data.amount},
+                    { "pos", data.damageSource}
                 };
                 break;
-
+            case "PlayerDeath":
+                fields = new Dictionary<string, object>
+                {
+                    { "pos", PlayerController.instance.transform.position},
+                    { "lifetime", Time.timeSinceLevelLoad}
+                };
+                break;
         }
-        StartCoroutine(Upload(phpUrl, type.ToString(), fields));
+        AnalyticsManager.Instance.TrackEvent(type, fields);
     }
 
      private IEnumerator Upload(string url, string eventName, Dictionary<string, string> fields)

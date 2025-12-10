@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb5c6a8afc1b460428924bb07e05f2d1, type: 3}
+  m_Name: AnalyticsConfig
+  m_EditorClassIdentifier: Assembly-CSharp::AnalyticsConfig
+  serverUrl: https://citmalumnes.upc.es/~adriarj/analytics/
+  events:
+  - eventName: DamageReceived
+    parameters:
+    - paramName: pos
+      type: 5
+    - paramName: damageAmount
+      type: 1
+  - eventName: PlayerDeath
+    parameters:
+    - paramName: pos
+      type: 5
+    - paramName: lifetime
+      type: 2
+  - eventName: AttackDealt
+    parameters:
+    - paramName: pos
+      type: 5
+    - paramName: enemyCount
+      type: 1
+  - eventName: PlayerJump
+    parameters:
+    - paramName: pos
+      type: 5
+  - eventName: ComboFinished
+    parameters:
+    - paramName: hitCount
+      type: 1
+  - eventName: SessionEnd
+    parameters:
+    - paramName: time
+      type: 6
+  - eventName: SessionStart
+    parameters:
+    - paramName: time
+      type: 6
+  - eventName: PathPing
+    parameters:
+    - paramName: pos
+      type: 6
