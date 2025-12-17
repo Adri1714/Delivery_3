@@ -26,6 +26,8 @@ MonoBehaviour:
       type: 5
     - paramName: lifetime
       type: 2
+    - paramName: ID
+      type: 1
   - eventName: AttackDealt
     parameters:
     - paramName: pos
@@ -48,7 +50,11 @@ MonoBehaviour:
     parameters:
     - paramName: time
       type: 6
-  - eventName: PathPing
+  - eventName: ObjectInteraction
     parameters:
-    - paramName: pos
+    - paramName: PosObject
+      type: 5
+    - paramName: timeColision
       type: 6
+    - paramName: SwitchName
+      type: 0
