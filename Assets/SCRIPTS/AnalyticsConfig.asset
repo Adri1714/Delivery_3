@@ -14,47 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AnalyticsConfig
   serverUrl: https://citmalumnes.upc.es/~adriarj/analytics/
   events:
-  - eventName: DamageReceived
+  - eventName: PlayerDamaged
     parameters:
-    - paramName: pos
-      type: 5
-    - paramName: damageAmount
-      type: 1
-  - eventName: PlayerDeath
-    parameters:
-    - paramName: pos
-      type: 5
-    - paramName: lifetime
+    - paramName: damagedAmount
       type: 2
-    - paramName: ID
-      type: 1
-  - eventName: AttackDealt
-    parameters:
-    - paramName: pos
-      type: 5
-    - paramName: enemyCount
-      type: 1
-  - eventName: PlayerJump
-    parameters:
-    - paramName: pos
-      type: 5
-  - eventName: ComboFinished
-    parameters:
-    - paramName: hitCount
-      type: 1
-  - eventName: SessionEnd
-    parameters:
-    - paramName: time
-      type: 6
-  - eventName: SessionStart
-    parameters:
-    - paramName: time
-      type: 6
-  - eventName: ObjectInteraction
-    parameters:
-    - paramName: PosObject
-      type: 5
-    - paramName: timeColision
-      type: 6
-    - paramName: SwitchName
+    - paramName: objectName
       type: 0
+    - paramName: position
+      type: 5
+    - paramName: timestamp
+      type: 6
+  - eventName: PlayerMovement
+    parameters:
+    - paramName: position
+      type: 5
+    - paramName: timestamp
+      type: 6
+    - paramName: action
+      type: 0
+  - eventName: 
+    parameters:
+    - paramName: position
+      type: 5
