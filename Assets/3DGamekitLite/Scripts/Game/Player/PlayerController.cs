@@ -639,12 +639,12 @@ namespace Gamekit3D
                     {
                         Damageable.DamageMessage damageData = (Damageable.DamageMessage)data;
                         Damaged(damageData);
-                        AnalyticsManager.Instance.TrackEvent("DamageReceived", 
-                        new System.Collections.Generic.Dictionary<string, object>
-                        {
-                            { "damageAmount", damageData.amount },
-                            { "pos", transform.position }
-                        });
+                        // AnalyticsManager.Instance.TrackEvent("DamageReceived", 
+                        // new System.Collections.Generic.Dictionary<string, object>
+                        // {
+                        //     { "damageAmount", damageData.amount },
+                        //     { "pos", transform.position }
+                        // });
                     }
                     break;
                 case MessageType.DEAD:

@@ -16,23 +16,23 @@ MonoBehaviour:
   events:
   - eventName: PlayerDamaged
     parameters:
-    - paramName: damagedAmount
+    - paramName: damage
       type: 2
-    - paramName: objectName
-      type: 0
-    - paramName: position
+    - paramName: pos
       type: 5
     - paramName: timestamp
       type: 6
-  - eventName: PlayerMovement
+  - eventName: PlayerPosition
     parameters:
-    - paramName: position
-      type: 5
-    - paramName: timestamp
-      type: 6
-    - paramName: action
-      type: 0
-  - eventName: 
+    - paramName: x
+      type: 2
+    - paramName: y
+      type: 2
+    - paramName: z
+      type: 2
+    - paramName: health
+      type: 1
+  - eventName: PlayerDeath
     parameters:
-    - paramName: position
+    - paramName: pos
       type: 5
