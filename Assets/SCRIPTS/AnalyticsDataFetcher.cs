@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UIElements;
 
 public class AnalyticsDataFetcher : MonoBehaviour
 {
@@ -41,15 +42,15 @@ public class AnalyticsDataFetcher : MonoBehaviour
         public string session_id;
     }
 
-    // --- Métodos de ejecución ---
+      // --- Métodos de ejecución ---
 
-    [ContextMenu("Fetch Player Positions")]
+        [ContextMenu("Fetch Player Positions")]
     public void GetPositions() {
         // IMPORTANTE: Enviamos "PlayerPosition", el PHP le pondrá el prefijo "analytics_"
         DownloadEventData("PlayerPosition", (json) => {
             PlayerPositionData[] data = JsonHelper.FromJson<PlayerPositionData>(json);
             Debug.Log($"<color=green>Datos de Posición recibidos: {data.Length}</color>");
-            foreach(var item in data) {
+            foreach (var item in data) {
                 Debug.Log($" Pos: ({item.x}, {item.y}, {item.z}) | Salud: {item.health} | Sesión: {item.session_id}");
             }
         });
