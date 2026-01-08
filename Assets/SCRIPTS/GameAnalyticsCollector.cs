@@ -17,7 +17,6 @@ public class GameAnalyticsCollector : MonoBehaviour
     // Para rastrear cambios sin eventos
     private int lastHealth;
     private HashSet<string> itemsKnown = new HashSet<string>();
-    private string[] keyItems = { "Key1", "Key2", "BossKey" }; // Ajusta según tus prefabs de inventario
 
     void Start()
     {
@@ -49,19 +48,6 @@ public class GameAnalyticsCollector : MonoBehaviour
         {
             TrackPosition();
             nextPositionTime = Time.time + positionInterval;
-        }
-
-        // 2. Rastreo de Inventario (Polling simple)
-        if (playerInventory != null)
-        {
-            foreach (var key in keyItems)
-            {
-                if (playerInventory.HasItem(key) && !itemsKnown.Contains(key))
-                {
-                    itemsKnown.Add(key);
-                    AnalyticsManager.Instance.TrackEvent("ItemPickedUp", new Dictionary<string, object> { { "item", key } });
-                }
-            }
         }
     }
 
