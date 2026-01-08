@@ -5,10 +5,6 @@ using Gamekit3D.Message;
 
 public class GameAnalyticsCollector : MonoBehaviour
 {
-    [Header("Configuración de Recopilación")]
-    [Tooltip("Segundos entre cada captura de posición para el heatmap")]
-    public float positionInterval = 1.5f; 
-    
     private PlayerController player;
     private Damageable playerDamageable;
     private InventoryController playerInventory;
@@ -43,11 +39,13 @@ public class GameAnalyticsCollector : MonoBehaviour
     {
         if (player == null) return;
 
-        // 1. Rastreo de Posición (Heatmaps)
+        
+        float interval = InteractionControl.Instance != null ? InteractionControl.Instance.positionInterval : 1.5f;
+
         if (Time.time >= nextPositionTime)
         {
             TrackPosition();
-            nextPositionTime = Time.time + positionInterval;
+            nextPositionTime = Time.time + interval;
         }
     }
 
