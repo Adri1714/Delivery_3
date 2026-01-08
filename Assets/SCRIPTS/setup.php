@@ -19,7 +19,6 @@ foreach ($data['events'] as $event) {
     
     // 2. Crear tabla si no existe
     $sql = "CREATE TABLE IF NOT EXISTS $tableName (
-        id INT AUTO_INCREMENT PRIMARY KEY,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )";
     

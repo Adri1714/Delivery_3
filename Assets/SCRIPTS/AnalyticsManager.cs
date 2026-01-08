@@ -14,24 +14,20 @@ public class AnalyticsManager : MonoBehaviour
     public bool debugMode = true;  // Si es true, imprime logs en consola
 
     private string collectorUrl;
+    private string sessionId; // Variable para la sesión actual
 
     void Awake()
     {
-        // Patrón Singleton: Asegura que solo hay uno y sobrevive entre escenas
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
             
+            // Generamos un ID único al iniciar el juego (una nueva sesión)
+            sessionId = System.Guid.NewGuid().ToString(); 
+            
             if (config != null)
-            {
-                // Asumimos que el collector se llama collector.php
-                collectorUrl = config.serverUrl + "collector.php"; 
-            }
-            else
-            {
-                Debug.LogError("AnalyticsManager: ¡Falta asignar el Config!");
-            }
+                collectorUrl = config.serverUrl + "collector.php";
         }
         else
         {
@@ -51,6 +47,10 @@ public class AnalyticsManager : MonoBehaviour
         {
             if (debugMode) Debug.LogWarning($"Analytics: El evento '{eventName}' no está definido en el Config.");
             return;
+        }
+        if (!parameters.ContainsKey("session_id"))
+        {
+            parameters.Add("session_id", sessionId);
         }
 
         // 2. Serializar los parámetros a JSON manualmente (Unity JsonUtility es malo con Diccionarios)

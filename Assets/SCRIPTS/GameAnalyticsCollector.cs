@@ -67,7 +67,9 @@ public class GameAnalyticsCollector : MonoBehaviour
     {
         var data = new Dictionary<string, object>
         {
-            { "pos", player.transform.position },
+            { "x", player.transform.position.x },
+            { "y", player.transform.position.y },
+            { "z", player.transform.position.z },
             { "damage", lastHealth - playerDamageable.currentHitPoints }
         };
         AnalyticsManager.Instance.TrackEvent("PlayerDamaged", data);
@@ -78,7 +80,15 @@ public class GameAnalyticsCollector : MonoBehaviour
     {
         AnalyticsManager.Instance.TrackEvent("PlayerDeath", new Dictionary<string, object> 
         { 
-            { "pos", player.transform.position } 
+            { "x", player.transform.position.x },
+            { "y", player.transform.position.y },
+            { "z", player.transform.position.z }
         });
+    }
+    private void OnNewSession()
+    {
+        // Resetea cualquier estado si es necesario
+        lastHealth = playerDamageable != null ? playerDamageable.currentHitPoints : 0;
+        itemsKnown.Clear();
     }
 }

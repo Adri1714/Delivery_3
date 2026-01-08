@@ -15,20 +15,30 @@ public class AnalyticsDataFetcher : MonoBehaviour
 
     [Serializable]
     public class PlayerPositionData {
-        public int id;
         public float x;
         public float y;
         public float z;
         public int health;
         public string timestamp;
+        public string session_id;
     }
 
     [Serializable]
     public class PlayerDamagedData {
-        public int id;
         public float damage;
-        public string pos; // El Vector3 se guarda como JSON string en la DB
+        public float x;
+        public float y;
+        public float z;
         public string timestamp;
+        public string session_id;
+    }
+    [Serializable]
+    public class PlayerKilledData {
+        public float x;
+        public float y;
+        public float z;
+        public string timestamp;
+        public string session_id;
     }
 
     // --- Métodos de ejecución ---
@@ -40,7 +50,27 @@ public class AnalyticsDataFetcher : MonoBehaviour
             PlayerPositionData[] data = JsonHelper.FromJson<PlayerPositionData>(json);
             Debug.Log($"<color=green>Datos de Posición recibidos: {data.Length}</color>");
             foreach(var item in data) {
-                Debug.Log($"ID: {item.id} | Pos: ({item.x}, {item.y}, {item.z}) | Salud: {item.health}");
+                Debug.Log($" Pos: ({item.x}, {item.y}, {item.z}) | Salud: {item.health} | Sesión: {item.session_id}");
+            }
+        });
+    }
+    [ContextMenu("Fetch Player Damaged Events")]
+    public void GetDamagedEvents() {
+        DownloadEventData("PlayerDamaged", (json) => {
+            PlayerDamagedData[] data = JsonHelper.FromJson<PlayerDamagedData>(json);
+            Debug.Log($"<color=green>Eventos de Daño recibidos: {data.Length}</color>");
+            foreach(var item in data) {
+                Debug.Log($" Daño: {item.damage} | Pos: ({item.x}, {item.y}, {item.z}) | Sesión: {item.session_id}");
+            }
+        });
+    }
+    [ContextMenu("Fetch Player Killed Events")]
+    public void GetKilledEvents() {
+        DownloadEventData("PlayerKilled", (json) => {
+            PlayerKilledData[] data = JsonHelper.FromJson<PlayerKilledData>(json);
+            Debug.Log($"<color=green>Eventos de Muerte recibidos: {data.Length}</color>");
+            foreach(var item in data) {
+                Debug.Log($" Pos: ({item.x}, {item.y}, {item.z}) | Sesión: {item.session_id}");
             }
         });
     }
