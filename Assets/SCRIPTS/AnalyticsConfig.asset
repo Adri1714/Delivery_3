@@ -18,10 +18,16 @@ MonoBehaviour:
     parameters:
     - paramName: damage
       type: 2
-    - paramName: pos
-      type: 5
     - paramName: timestamp
       type: 6
+    - paramName: x
+      type: 2
+    - paramName: y
+      type: 2
+    - paramName: z
+      type: 2
+    - paramName: session_id
+      type: 0
   - eventName: PlayerPosition
     parameters:
     - paramName: x
@@ -32,7 +38,15 @@ MonoBehaviour:
       type: 2
     - paramName: health
       type: 1
+    - paramName: session_id
+      type: 0
   - eventName: PlayerDeath
     parameters:
-    - paramName: pos
-      type: 5
+    - paramName: x
+      type: 2
+    - paramName: y
+      type: 2
+    - paramName: z
+      type: 2
+    - paramName: session_id
+      type: 0
