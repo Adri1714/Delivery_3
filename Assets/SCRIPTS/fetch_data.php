@@ -14,7 +14,7 @@ $safeEventName = preg_replace("/[^a-zA-Z0-9]+/", "", $eventName);
 $tableName = "analytics_" . strtolower($safeEventName);
 
 // 2. Consultar datos
-$sql = "SELECT * FROM $tableName ORDER BY id DESC"; // Ordenados por el más reciente
+$sql = "SELECT * FROM $tableName ORDER BY timestamp DESC";
 $result = $conn->query($sql);
 
 $rows = array();
