@@ -3,23 +3,41 @@ using System.Collections.Generic;
 
 public class GaussianHeatmap : MonoBehaviour
 {
-    public int resolution = 256;
-    public float radius = 8f;
-    public Gradient gradient;
-    public Renderer targetRenderer;
+    [Header("Heatmap Settings")]
+    public int resolution = 512;          // Resolución de la textura
+    public float radius = 8f;             // Radio del blur gaussiano
+    public Gradient gradient;             // Colores del heatmap
+
+    [Header("Map Settings")]
+    public MeshRenderer mapRenderer;      // Mesh del nivel
+    public Material heatmapMaterial;      // Material para el Quad del heatmap
+
+    [Header("Height Settings")] 
+    public float heightOffset = 0.5f; // Ajustable desde el inspector
+
+    private Renderer spawnedRenderer;
 
     public void Generate(List<Vector3> positions)
     {
+        if (mapRenderer == null)
+        {
+            Debug.LogError("Debes asignar el MeshRenderer del mapa.");
+            return;
+        }
+
+        // 1. Obtener límites del mapa
+        Bounds b = mapRenderer.bounds;
+
+        float minX = b.min.x;
+        float maxX = b.max.x;
+        float minZ = b.min.z;
+        float maxZ = b.max.z;
+
+        // 2. Crear textura del heatmap
         Texture2D tex = new Texture2D(resolution, resolution);
         float[,] buffer = new float[resolution, resolution];
 
-        // 1. Obtener límites del mapa
-        float minX = Mathf.Min(positions.ConvertAll(p => p.x).ToArray());
-        float maxX = Mathf.Max(positions.ConvertAll(p => p.x).ToArray());
-        float minZ = Mathf.Min(positions.ConvertAll(p => p.z).ToArray());
-        float maxZ = Mathf.Max(positions.ConvertAll(p => p.z).ToArray());
-
-        // 2. Pintar un blur gaussiano por cada punto
+        // 3. Pintar blur gaussiano por cada punto
         foreach (var pos in positions)
         {
             int cx = Mathf.RoundToInt(Mathf.InverseLerp(minX, maxX, pos.x) * (resolution - 1));
@@ -45,7 +63,7 @@ public class GaussianHeatmap : MonoBehaviour
             }
         }
 
-        // 3. Normalizar y colorear
+        // 4. Normalizar y colorear
         float maxVal = 0f;
         foreach (float v in buffer)
             if (v > maxVal) maxVal = v;
@@ -54,12 +72,60 @@ public class GaussianHeatmap : MonoBehaviour
         {
             for (int y = 0; y < resolution; y++)
             {
-                float t = buffer[x, y] / maxVal;
+                float t = maxVal > 0 ? buffer[x, y] / maxVal : 0f;
                 tex.SetPixel(x, y, gradient.Evaluate(t));
             }
         }
 
         tex.Apply();
-        targetRenderer.material.mainTexture = tex;
+
+        // 5. Spawnear el plano del heatmap
+        SpawnHeatmapPlane(tex, minX, maxX, minZ, maxZ);
     }
+
+    private void SpawnHeatmapPlane(Texture2D tex, float minX, float maxX, float minZ, float maxZ)
+    {
+        if (spawnedRenderer != null)
+            Destroy(spawnedRenderer.gameObject);
+
+        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        plane.name = "HeatmapPlane";
+
+        plane.transform.rotation = Quaternion.Euler(90, 0, 0);
+
+        float width = maxX - minX;
+        float height = maxZ - minZ;
+
+        plane.transform.localScale = new Vector3(width, height, 1);
+
+        float centerX = (minX + maxX) / 2f;
+        float centerZ = (minZ + maxZ) / 2f;
+
+        // 1. Raycast para encontrar el suelo real
+        float rayHeight = 500f;
+        Vector3 rayOrigin = new Vector3(centerX, rayHeight, centerZ);
+
+        RaycastHit hit;
+        float groundY = 0f;
+
+        if (Physics.Raycast(rayOrigin, Vector3.down, out hit, Mathf.Infinity))
+        {
+            groundY = hit.point.y;
+        }
+        else
+        {
+            groundY = mapRenderer.bounds.min.y;
+        }
+
+        // 2. Usamos heightOffset para subirlo más
+        plane.transform.position = new Vector3(centerX, groundY + heightOffset, centerZ);
+
+        spawnedRenderer = plane.GetComponent<Renderer>();
+        spawnedRenderer.material = new Material(heatmapMaterial);
+        spawnedRenderer.material.mainTexture = tex;
+
+        Debug.Log("<color=green>Heatmap spawneado por encima del suelo con offset.</color>");
+    }
+
+
 }

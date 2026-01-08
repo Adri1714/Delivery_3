@@ -11,13 +11,6 @@ public class HeatmapController : MonoBehaviour
         fetcher = FindObjectOfType<AnalyticsDataFetcher>();
         heatmap = FindObjectOfType<GaussianHeatmap>();
 
-        if (fetcher == null || heatmap == null)
-        {
-            Debug.LogError("Faltan componentes: AnalyticsDataFetcher o GaussianHeatmap.");
-            return;
-        }
-
-        // Llamamos al fetcher sin modificarlo
         fetcher.DownloadEventData("PlayerPosition", OnPositionsDownloaded);
     }
 
@@ -30,7 +23,5 @@ public class HeatmapController : MonoBehaviour
             positions.Add(new Vector3(item.x, item.y, item.z));
 
         heatmap.Generate(positions);
-
-        Debug.Log("<color=cyan>Heatmap Gaussiano generado automáticamente al iniciar la escena.</color>");
     }
 }
