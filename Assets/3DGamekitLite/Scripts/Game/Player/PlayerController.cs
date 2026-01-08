@@ -622,12 +622,6 @@ namespace Gamekit3D
             //we set the damageable invincible so we can't get hurt just after being respawned (feel like a double punitive)
             m_Damageable.isInvulnerable = false;
             
-            // Notificar al PathDebugger que el respawn ha terminado
-            PlayerPathDebugger pathDebugger = GetComponent<PlayerPathDebugger>();
-            if (pathDebugger != null)
-            {
-                pathDebugger.OnRespawnFinished();
-            }
         }
 
         // Called by Ellen's Damageable when she is hurt.
