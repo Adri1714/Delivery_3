@@ -10,13 +10,7 @@ public class InteractionControl : MonoBehaviour
     [Tooltip("Arrastra aquí tu script ServerPathVisualizer")]
     public ServerPathVisualizer visualizer;
 
-    [Header("1. Grid Adjustments")]
-    [SerializeField] private bool showGrid = true;
-    [Range(1f, 10f)] public float gridSize = 5.0f;
-    public Color gridColor = new Color(1, 1, 1, 0.2f);
-    public int gridDimensions = 50; // Tamaño del grid en metros (50x50)
-
-    [Header("2. Color & Intensity - Sesión Actual")]
+    [Header("1. Color & Intensity - Sesión Actual")]
     [Tooltip("Gradiente de color para la sesión actual")]
     public Gradient pathGradient;
     [Tooltip("Color para eventos de muerte")]
@@ -24,7 +18,7 @@ public class InteractionControl : MonoBehaviour
     [Tooltip("Tamaño de los puntos de la sesión actual")]
     [Range(0.1f, 2f)] public float visualIntensity = 0.3f;
 
-    [Header("2b. Sesiones Anteriores")]
+    [Header("2. Sesiones Anteriores")]
     [Tooltip("Mostrar paths de sesiones anteriores")]
     public bool showOldSessions = true;
     [Tooltip("Gradiente de color para sesiones anteriores (más tenue)")]
@@ -39,7 +33,23 @@ public class InteractionControl : MonoBehaviour
     public bool showDeaths = true;
     public bool showDamage = false;
 
-    [Header("4. Captura de Datos (Durante el Juego)")]
+    [Header("4. Heatmap Settings")]
+    [Tooltip("Mostrar/Ocultar el heatmap")]
+    public bool showHeatmap = true;
+    [Tooltip("Altura del heatmap sobre el suelo")]
+    [Range(0f, 5f)]
+    public float heatmapHeightOffset = 0.5f;
+    [Tooltip("Tamaño de los cuadrados (menor = más preciso pero más pesado)")]
+    [Range(64, 2048)]
+    public int heatmapResolution = 512;
+    [Tooltip("Radio del blur gaussiano (afecta el tamaño de las zonas de calor)")]
+    [Range(1f, 20f)]
+    public float heatmapBlurRadius = 8f;
+    [Tooltip("Suavizado del heatmap (reduce ruido visual, 0 = sin suavizar)")]
+    [Range(0, 3)]
+    public int heatmapSmoothing = 1;
+
+    [Header("5. Captura de Datos (Durante el Juego)")]
     [Tooltip("Segundos entre cada captura de posición. Valores menores = más puntos (más precisión pero más datos)")]
     [Range(0.1f, 5f)]
     public float positionInterval = 1.5f;
@@ -54,24 +64,6 @@ public class InteractionControl : MonoBehaviour
         if (visualizer != null)
         {
             visualizer.OnSettingsChanged();
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (!showGrid) return;
-
-        Gizmos.color = gridColor;
-        Vector3 startPos = transform.position;
-        startPos.y = 0.1f; // Un poco elevado para que no se solape con el suelo
-
-        for (float x = -gridDimensions; x <= gridDimensions; x += gridSize)
-        {
-            Gizmos.DrawLine(new Vector3(x, startPos.y, -gridDimensions), new Vector3(x, startPos.y, gridDimensions));
-        }
-        for (float z = -gridDimensions; z <= gridDimensions; z += gridSize)
-        {
-            Gizmos.DrawLine(new Vector3(-gridDimensions, startPos.y, z), new Vector3(gridDimensions, startPos.y, z));
         }
     }
 }
