@@ -4,39 +4,40 @@ using System.Collections.Generic;
 public class GaussianHeatmap : MonoBehaviour
 {
     [Header("Heatmap Settings")]
-    public int resolution = 512;          // Resoluci�n de la textura
-    public float radius = 8f;             // Radio del blur gaussiano
-    public Gradient gradient;             // Colores del heatmap
+    public int resolution = 512;
+    public float radius = 8f;
+    public Gradient gradient;
 
     [Header("Map Settings")]
-    public MeshRenderer mapRenderer;      // Mesh del nivel
-    public Material heatmapMaterial;      // Material para el Quad del heatmap
+    public MeshRenderer mapRenderer;
+    public Material heatmapMaterial;
 
-    [Header("Height Settings")] 
-    public float heightOffset = 0.5f; // Ajustable desde el inspector
+    [Header("Height Settings")]
+    public float heightOffset = 0.5f;
 
     private Renderer spawnedRenderer;
-    private Material instancedMaterial; // Material instanciado para no afectar al original
-    private float baseGroundHeight; // Altura base del suelo (fija)
-    private float lastHeightOffset = -1f; // Último offset usado para detectar cambios
+    private Material instancedMaterial;
+    private float baseGroundHeight;
+    private float lastHeightOffset = -1f;
 
-    /// <summary>
-    /// Actualiza la visibilidad y altura del heatmap desde InteractionControl
-    /// </summary>
     public void UpdateFromInteractionControl()
     {
         if (spawnedRenderer == null || InteractionControl.Instance == null) return;
 
-        // Controlar visibilidad
+        // Mostrar / ocultar heatmap
         spawnedRenderer.enabled = InteractionControl.Instance.showHeatmap;
 
-        // Actualizar altura SOLO si cambió el valor de heightOffset
-        if (spawnedRenderer.gameObject != null && 
-            !Mathf.Approximately(lastHeightOffset, InteractionControl.Instance.heatmapHeightOffset))
+        // Actualizar altura si cambió el offset
+        if (!Mathf.Approximately(lastHeightOffset, InteractionControl.Instance.heatmapHeightOffset))
         {
             lastHeightOffset = InteractionControl.Instance.heatmapHeightOffset;
+
             Vector3 pos = spawnedRenderer.transform.position;
-            spawnedRenderer.transform.position = new Vector3(pos.x, baseGroundHeight + lastHeightOffset, pos.z);
+            spawnedRenderer.transform.position = new Vector3(
+                pos.x,
+                baseGroundHeight + lastHeightOffset,
+                pos.z
+            );
         }
     }
 
@@ -48,12 +49,12 @@ public class GaussianHeatmap : MonoBehaviour
             return;
         }
 
-        // Usar valores de InteractionControl si está disponible, sino valores locales
+        // Valores dinámicos desde InteractionControl
         int currentResolution = InteractionControl.Instance != null ? InteractionControl.Instance.heatmapResolution : resolution;
         float currentRadius = InteractionControl.Instance != null ? InteractionControl.Instance.heatmapBlurRadius : radius;
         int smoothingPasses = InteractionControl.Instance != null ? InteractionControl.Instance.heatmapSmoothing : 1;
 
-        // 1. Obtener límites del mapa
+        // 1. Límites del mapa
         Bounds b = mapRenderer.bounds;
 
         float minX = b.min.x;
@@ -61,11 +62,11 @@ public class GaussianHeatmap : MonoBehaviour
         float minZ = b.min.z;
         float maxZ = b.max.z;
 
-        // 2. Crear textura del heatmap
+        //  Crear textura
         Texture2D tex = new Texture2D(currentResolution, currentResolution);
         float[,] buffer = new float[currentResolution, currentResolution];
 
-        // 3. Pintar blur gaussiano por cada punto
+        //  Pintar blur gaussiano
         foreach (var pos in positions)
         {
             int cx = Mathf.RoundToInt(Mathf.InverseLerp(minX, maxX, pos.x) * (currentResolution - 1));
@@ -91,7 +92,7 @@ public class GaussianHeatmap : MonoBehaviour
             }
         }
 
-        // 4. Normalizar y colorear
+        // Normalización logarítmica (evita que un punto domine todo)
         float maxVal = 0f;
         foreach (float v in buffer)
             if (v > maxVal) maxVal = v;
@@ -100,24 +101,24 @@ public class GaussianHeatmap : MonoBehaviour
         {
             for (int y = 0; y < currentResolution; y++)
             {
-                float t = maxVal > 0 ? buffer[x, y] / maxVal : 0f;
+                float t = maxVal > 0
+                    ? Mathf.Log(1 + buffer[x, y]) / Mathf.Log(1 + maxVal)
+                    : 0f;
+
                 tex.SetPixel(x, y, gradient.Evaluate(t));
             }
         }
 
         tex.Apply();
 
-        // 4b. Aplicar suavizado si está configurado
+        // Suavizado opcional
         if (smoothingPasses > 0)
-        {
             tex = ApplySmoothing(tex, smoothingPasses);
-        }
 
-        // Configurar filtrado bilineal para suavizar más
         tex.filterMode = FilterMode.Bilinear;
         tex.wrapMode = TextureWrapMode.Clamp;
 
-        // 5. Spawnear el plano del heatmap
+        // Spawnear el heatmap
         SpawnHeatmapPlane(tex, minX, maxX, minZ, maxZ);
     }
 
@@ -139,7 +140,7 @@ public class GaussianHeatmap : MonoBehaviour
         float centerX = (minX + maxX) / 2f;
         float centerZ = (minZ + maxZ) / 2f;
 
-        // 1. Raycast para encontrar el suelo real
+        // Raycast para encontrar el suelo real
         float rayHeight = 500f;
         Vector3 rayOrigin = new Vector3(centerX, rayHeight, centerZ);
 
@@ -147,35 +148,27 @@ public class GaussianHeatmap : MonoBehaviour
         baseGroundHeight = 0f;
 
         if (Physics.Raycast(rayOrigin, Vector3.down, out hit, Mathf.Infinity))
-        {
             baseGroundHeight = hit.point.y;
-        }
         else
-        {
             baseGroundHeight = mapRenderer.bounds.min.y;
-        }
 
-        // 2. Usar el heightOffset desde InteractionControl si está disponible
+        // Offset inicial
         float initialOffset = InteractionControl.Instance != null ? InteractionControl.Instance.heatmapHeightOffset : heightOffset;
         lastHeightOffset = initialOffset;
+
         plane.transform.position = new Vector3(centerX, baseGroundHeight + initialOffset, centerZ);
 
         spawnedRenderer = plane.GetComponent<Renderer>();
-        
-        // Crear material instanciado para no afectar al original
+
         instancedMaterial = new Material(heatmapMaterial);
         instancedMaterial.mainTexture = tex;
         spawnedRenderer.material = instancedMaterial;
 
-        // Aplicar configuración inicial desde InteractionControl
         UpdateFromInteractionControl();
 
-        Debug.Log("<color=green>Heatmap spawneado por encima del suelo con offset.</color>");
+        Debug.Log("Heatmap spawneado con normalización logarítmica y altura dinámica");
     }
 
-    /// <summary>
-    /// Aplica un filtro de suavizado box blur a la textura
-    /// </summary>
     private Texture2D ApplySmoothing(Texture2D source, int passes)
     {
         int width = source.width;
@@ -192,7 +185,6 @@ public class GaussianHeatmap : MonoBehaviour
                     Color sum = Color.black;
                     int count = 0;
 
-                    // Box blur 3x3
                     for (int dy = -1; dy <= 1; dy++)
                     {
                         for (int dx = -1; dx <= 1; dx++)
@@ -212,7 +204,6 @@ public class GaussianHeatmap : MonoBehaviour
                 }
             }
 
-            // Copiar resultado para la siguiente pasada
             System.Array.Copy(newPixels, pixels, pixels.Length);
         }
 
@@ -220,6 +211,4 @@ public class GaussianHeatmap : MonoBehaviour
         source.Apply();
         return source;
     }
-
-
 }

@@ -31,9 +31,6 @@ public class HeatmapController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Genera el heatmap descargando los datos de posición
-    /// </summary>
     public void GenerateHeatmap()
     {
         if (fetcher == null)
@@ -60,27 +57,18 @@ public class HeatmapController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Mostrar el heatmap (controla InteractionControl)
-    /// </summary>
     public void ShowHeatmap()
     {
         if (InteractionControl.Instance != null)
             InteractionControl.Instance.showHeatmap = true;
     }
 
-    /// <summary>
-    /// Ocultar el heatmap (controla InteractionControl)
-    /// </summary>
     public void HideHeatmap()
     {
         if (InteractionControl.Instance != null)
             InteractionControl.Instance.showHeatmap = false;
     }
 
-    /// <summary>
-    /// Alternar visibilidad del heatmap (controla InteractionControl)
-    /// </summary>
     public void ToggleHeatmap()
     {
         if (InteractionControl.Instance != null)
