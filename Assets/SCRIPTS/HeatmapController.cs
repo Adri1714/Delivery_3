@@ -8,7 +8,6 @@ public class HeatmapController : MonoBehaviour
     private GaussianHeatmap heatmap;
 
     [Header("Auto-generar al inicio")]
-    [Tooltip("Descargar y generar heatmap automáticamente al iniciar")]
     public bool autoGenerate = true;
 
     private void Start()
@@ -53,7 +52,7 @@ public class HeatmapController : MonoBehaviour
         if (heatmap != null)
         {
             heatmap.Generate(positions);
-            Debug.Log($"<color=cyan>Heatmap generado con {positions.Count} posiciones</color>");
+            Debug.Log($"Heatmap generado con {positions.Count} posiciones");
         }
     }
 

@@ -39,7 +39,7 @@ public class DamageMarkerController : MonoBehaviour
 
         spawner.SpawnMarkers(positions);
 
-        Debug.Log($"<color=cyan>Marcadores de daño generados: {positions.Count}</color>");
+        Debug.Log($"Marcadores de daño generados: {positions.Count}");
     }
 
     public void ShowMarkers()
